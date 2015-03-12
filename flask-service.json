@@ -1,0 +1,14 @@
+{
+    "id": "flask-service",
+    "kind": "Service",
+    "apiVersion": "v1beta1",
+    "port": 80,
+    "containerPort": "flask-server",
+    "selector": {
+        "name": "flask"
+    },
+    "labels": {
+        "name": "flask-service"
+    },
+    "createExternalLoadBalancer": true,
+}
