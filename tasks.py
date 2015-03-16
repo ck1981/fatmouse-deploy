@@ -10,7 +10,7 @@ PROJECT_ID = json.loads(run("gcloud config list project --format json").stdout)[
 
 @task
 def release():
-    docker_repo = "gcr.io/{}/flask-test".format(PROJECT_ID)
+    docker_repo = "gcr.io/{}/flask-test".format(PROJECT_ID.replace('-', '_'))
     commit_hash = run("git rev-parse HEAD").stdout.strip()
     run("docker build -t {}:{} .".format(docker_repo, commit_hash))
     run("gcloud preview docker push {}:{}".format(docker_repo, commit_hash))

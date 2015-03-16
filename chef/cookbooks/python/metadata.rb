@@ -1,0 +1,3 @@
+name 'python'
+
+depends 'apt'

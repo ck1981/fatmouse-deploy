@@ -1,0 +1,25 @@
+{
+    "id": "worker-controller-${FAM_DEPLOY_VERSION}",
+    "kind": "ReplicationController",
+    "apiVersion": "v1beta1",
+    "desiredState": {
+        "replicas": 3,
+        "replicaSelector": {"name": "worker", "version": "${FAM_DEPLOY_VERSION}"},
+        "podTemplate": {
+            "desiredState": {
+                "manifest": {
+                    "version": "v1beta1",
+                    "id": "worker",
+                    "containers": [{
+                        "name": "worker",
+                        "image": "gcr.io/apt_entropy_87912/worker-test:${FAM_DEPLOY_RELEASE_VERSION}",
+                        "ports": [{"name": "worker-port",  "containerPort": 5000}],
+                        "env": [{"name": "DEPLOY_NAME", "value": "${FAM_DEPLOY_NAME}"}],
+                    }]
+                }
+            },
+            "labels": {"name": "worker", "version": "${FAM_DEPLOY_VERSION}"}
+        }
+    },
+    "lables": {"name": "worker", "version": "${FAM_DEPLOY_VERSION}"}
+}

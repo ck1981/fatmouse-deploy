@@ -1,1 +1,3 @@
 __pycache__
+.kubeconfig
+chef/berks-cookbooks

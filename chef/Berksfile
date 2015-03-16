@@ -1,0 +1,5 @@
+source 'https://supermarket.getchef.com'
+
+cookbook 'apt'
+cookbook 'python', path: 'cookbooks/python'
+cookbook 'node', path: 'cookbooks/node'

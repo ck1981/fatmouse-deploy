@@ -1,0 +1,14 @@
+{
+    "id": "worker-service",
+    "kind": "Service",
+    "apiVersion": "v1beta1",
+    "port": 5000,
+    "containerPort": "worker-port",
+    "selector": {
+        "name": "worker"
+    },
+    "labels": {
+        "name": "worker-service"
+    },
+    "createExternalLoadBalancer": true,
+}

@@ -1,0 +1,25 @@
+{
+    "id": "api-controller-${FAM_DEPLOY_VERSION}",
+    "kind": "ReplicationController",
+    "apiVersion": "v1beta1",
+    "desiredState": {
+        "replicas": 3,
+        "replicaSelector": {"name": "api", "version": "${FAM_DEPLOY_VERSION}"},
+        "podTemplate": {
+            "desiredState": {
+                "manifest": {
+                    "version": "v1beta1",
+                    "id": "api",
+                    "containers": [{
+                        "name": "api",
+                        "image": "gcr.io/apt_entropy_87912/api-test:${FAM_DEPLOY_RELEASE_VERSION}",
+                        "ports": [{"name": "api-port",  "containerPort": 5000}],
+                        "env": [{"name": "DEPLOY_NAME", "value": "${FAM_DEPLOY_NAME}"}],
+                    }]
+                }
+            },
+            "labels": {"name": "api", "version": "${FAM_DEPLOY_VERSION}"}
+        }
+    },
+    "lables": {"name": "api", "version": "${FAM_DEPLOY_VERSION}"}
+}

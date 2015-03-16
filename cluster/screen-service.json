@@ -1,14 +1,14 @@
 {
-    "id": "flask-service",
+    "id": "screen-service",
     "kind": "Service",
     "apiVersion": "v1beta1",
-    "port": 80,
-    "containerPort": "flask-server",
+    "port": 8080,
+    "containerPort": "screen-port",
     "selector": {
-        "name": "flask"
+        "name": "screen"
     },
     "labels": {
-        "name": "flask-service"
+        "name": "screen-service"
     },
     "createExternalLoadBalancer": true,
 }
