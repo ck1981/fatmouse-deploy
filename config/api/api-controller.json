@@ -12,7 +12,7 @@
                     "id": "api",
                     "containers": [{
                         "name": "api",
-                        "image": "gcr.io/apt_entropy_87912/api-test:${FAM_DEPLOY_RELEASE_VERSION}",
+                        "image": "gcr.io/apt_entropy_87912/api:${FAM_DEPLOY_RELEASE_VERSION}",
                         "ports": [{"name": "api-port",  "containerPort": 5000}],
                         "env": [{"name": "DEPLOY_NAME", "value": "${FAM_DEPLOY_NAME}"}],
                     }]

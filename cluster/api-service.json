@@ -10,5 +10,5 @@
     "labels": {
         "name": "api-service"
     },
-    "createExternalLoadBalancer": true,
+    //"createExternalLoadBalancer": true,
 }
