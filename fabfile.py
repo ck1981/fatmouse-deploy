@@ -2,11 +2,12 @@ import os
 import json
 import shutil
 import tempfile
+import posixpath
 from string import Template
 from tempfile import NamedTemporaryFile
 
 from fabric.api import task, local
-from fabric.context_managers import settings
+from fabric.context_managers import settings, lcd
 
 PROJECT_ID = json.loads(local("gcloud config list project --format json", capture=True))['core']['project']
 
@@ -19,6 +20,10 @@ def release():
 
     shutil.copytree('.', tmpdir)
 
+    # Resolve cookbook dependencies
+    with lcd(os.path.join(tmpdir, 'chef')):
+        local("berks vendor")
+
     confdir = os.path.join(tmpdir, 'config')
     configs = ((os.path.join(confdir, name), name) for name in os.listdir(confdir))
     for (path, name) in configs:
@@ -29,19 +34,30 @@ def release():
         local("gcloud preview docker push {}".format(repo_name))
         print("Successfully released container: {}".format(repo_name))
 
+    print("Successful release: {}".format(commit_hash))
+
 
 @task
-def deploy(cluster, release, version):
+def deploy(cluster, release):
     bucket_name = "gs://deployment_{}".format(PROJECT_ID)
-    # Create the bucket on the frist deploy
+
     with settings(warn_only=True):
+        # Create the bucket on the frist deploy
         r = local("gsutil ls {}".format(bucket_name))
         if r.failed:
             local("gsutil mb {}".format(bucket_name))
+        # Figure out next deploy version
+        out = local("gsutil ls {}/{}".format(bucket_name, cluster), capture=True)
+        if out.failed:
+            deploy_version = 1
+        else:
+            entries = (posixpath.basename(posixpath.normpath(path)) for path in out.split())
+            last_deploy = max(int(entry) for entry in entries if entry.isdigit())
+            deploy_version = last_deploy + 1
 
     environ = os.environ.copy()
     environ.update({'FAM_DEPLOY_RELEASE_VERSION': release,
-                    'FAM_DEPLOY_VERSION': version})
+                    'FAM_DEPLOY_VERSION': deploy_version})
 
     tmpdir = tempfile.mkdtemp()
     configs = ((os.path.join(os.path.realpath('./config'), name), name) for name in os.listdir('./config'))
@@ -56,8 +72,9 @@ def deploy(cluster, release, version):
 
         local("gsutil cp {src} {bucket_name}/{cluster}/{version}/{config}".format(
             src=config, bucket_name=bucket_name, cluster=cluster,
-            version=version, config=config_name))
-    print("Successfully pushed deploy: {}".format(version))
+            version=deploy_version, config=config_name))
+
+    print("Successfully pushed deploy: {}".format(deploy_version))
 
 
 @task
@@ -80,7 +97,7 @@ def delivery(cluster_name, deploy_version):
         if current_version:
             controller_name = os.path.basename(config).split('.')[0]
             current_controller = "{}-{}".format(controller_name, current_version)
-            command = "gcloud preview container kubectl rollingupdate {current_controller} -f {new_controller} --update-period=5s".format(
+            command = "gcloud preview container kubectl rollingupdate {current_controller} -f {new_controller} --update-period=3s".format(
                 current_controller=current_controller, new_controller=config)
             local(command)
         else:
